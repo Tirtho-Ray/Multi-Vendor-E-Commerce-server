@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome Email</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f7fc;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #3a3a3a;
+        font-size: 28px;
+        margin-bottom: 15px;
+      }
+      p {
+        font-size: 16px;
+        color: #555555;
+        line-height: 1.5;
+        margin: 10px 0;
+      }
+      .highlight {
+        color: #4f8bff;
+        font-weight: bold;
+      }
+      .cta-button {
+        display: inline-block;
+        background-color: #4f8bff;
+        color: #ffffff;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 30px;
+        font-size: 16px;
+        margin-top: 20px;
+        text-align: center;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 14px;
+        color: #aaa;
+      }
+      .footer a {
+        color: #4f8bff;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Welcome, {{name}}!</h1>
+      <p>
+        Thank you for registering on our platform. We're excited to have you as part of our community. Our goal is to provide you with the best experience possible!
+      </p>
+      <p>
+        Your registered email is: <span class="highlight">{{email}}</span>
+      </p>
+      <p>
+        To get started, click the button below to explore your new account.
+      </p>
+      <a href="#" class="cta-button">Go to Dashboard</a>
+      <div class="footer">
+        <p>Need help? <a href="mailto:support@example.com">Contact Support</a></p>
+        <p>You're receiving this email because you signed up for our platform.</p>
+      </div>
+    </div>
+  </body>
+</html>
