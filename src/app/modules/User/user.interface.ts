@@ -12,6 +12,8 @@ export type TUser = {
   passwordChangedAt?: Date;
   mobileNumber?: string;
   profilePhoto?: string;
+  otp:string,
+  otpExpiresAt:Date,
   createdAt?: Date;
   updatedAt?: Date;
 };

@@ -10,8 +10,8 @@ const router = express.Router();
 export const UserRoutes = router;
 
 router.post(
-  '/create-user',
-  auth(USER_ROLE.ADMIN),
+  '/create-admin',
+  auth(USER_ROLE.SUPER_ADMIN),
   validateRequest(UserValidation.createUserValidationSchema),
   UserControllers.userRegister
 );
