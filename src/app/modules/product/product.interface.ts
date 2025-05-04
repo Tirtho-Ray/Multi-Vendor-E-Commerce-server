@@ -1,71 +1,68 @@
-export type TProduct = {
-    _id?: string;
-  
-    // 🧾 Item details
-    item: {
-      name: string;
-      slug: string;
-      description: string;
-      price: number;
-      quantity: number;
-      category: string;
-      subCategory?: string;
-      brand?: string;
-      tags?: string[];
-      isAvailable: boolean;
-      picture: string;
-      manyPicture: string[];
-      variants?: {
-        color?: string;
-        size?: string;
-        stock: number;
-        additionalPrice?: number;
-      }[];
-    };
-  
-    // 🏪 Vendor details
-    vendor: {
-      vendorId: string;
-      vendorName?: string;
-    };
-  
-    // 🎯 Discount and Promotion
-    discount?: {
-      type: 'percentage' | 'fixed';
-      amount: number;
-      startDate?: Date;
-      endDate?: Date;
-    };
-  
-    // ⭐ Ratings & Reviews
-    reviews?: {
-      averageRating: number;
-      totalReviews: number;
-      customerReviews: {
-        userId: string;
-        username: string;
-        rating: number; // 1-5 stars
-        comment: string;
-        createdAt: Date;
-      }[];
-    };
-  
-    // 🚚 Logistics
-    logistics?: {
-      shippingInfo?: string;
-      returnPolicy?: string;
-    };
-  
-    // 🔍 SEO
-    seo?: {
-      metaTitle?: string;
-      metaDescription?: string;
-    };
-  
-    // 🕒 Timestamps
-    timestamps?: {
-      createdAt?: Date;
-      updatedAt?: Date;
-    };
+import { Types } from "mongoose";
+
+export type TVariantAttribute = {
+  [key: string]: string | number | boolean;
+};
+
+export type TVariant = {
+  attributes: TVariantAttribute;
+  stock: number;
+  additionalPrice?: number;
+  variantPicture?: string[]; 
+};
+
+export interface TProduct {
+  _id?: string;
+  productId: number;
+
+  item: {
+    name: string;
+    slug: string;
+    description: string;
+    price: number;
+    quantity: number;
+    category: string;
+    subCategory?: string;
+    brand?: string;
+    tags?: string[];
+    isAvailable: boolean;
+    picture: string; // main display picture
+    manyPicture?: string[]; // gallery like Daraz
+    variants?: TVariant[];
   };
-  
+
+  vendor: {
+    vendorId: Types.ObjectId;
+    vendorName?: string;
+  };
+
+  discount?: {
+    type?: "percentage" | "fixed";
+    amount?: number;
+    startDate?: Date;
+    endDate?: Date;
+  };
+
+  reviews?: {
+    averageRating: number;
+    totalReviews: number;
+    customerReviews: {
+      userId: Types.ObjectId;
+      rating: number;
+      comment: string;
+      createdAt: Date;
+    }[];
+  };
+
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+  };
+
+  status?: "active" | "inactive" | "pending" | "rejected";
+  visibility?: "public" | "private" | "draft";
+
+  views?: number;
+  wishlistedCount?: number;
+  adminNotes?: string;
+}
