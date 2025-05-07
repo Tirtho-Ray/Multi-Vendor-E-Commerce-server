@@ -4,11 +4,11 @@ import { ProductServices } from "./product.services";
 import httpStatus from 'http-status';
 
 const createProduct = catchAsync( async (req,res )=>{
-    const result  =  ProductServices.createProductIntoDB(req.body);
+    const result  = await ProductServices.createProductIntoDB(req.body);
 
     sendResponse(res, {
         success:true,
-        statusCode:httpStatus.OK,
+        statusCode: httpStatus.CREATED,
         message:"Product Create Succfully",
         data:result
     });

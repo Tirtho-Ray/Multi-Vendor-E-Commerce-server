@@ -26,8 +26,8 @@ export interface TProduct {
     brand?: string;
     tags?: string[];
     isAvailable: boolean;
-    picture: string; // main display picture
-    manyPicture?: string[]; // gallery like Daraz
+    picture: string; 
+    manyPicture?: string[]; 
     variants?: TVariant[];
   };
 

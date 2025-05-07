@@ -6,7 +6,7 @@ const VariantSchema = new Schema(
   {
     attributes: {
       type: Map,
-      of: Schema.Types.Mixed, // can be string, number, boolean
+      of: Schema.Types.Mixed, 
       required: true,
     },
     stock: { type: Number, required: true },
@@ -16,7 +16,7 @@ const VariantSchema = new Schema(
   { _id: false }
 );
 
-// ⭐ Review Schema
+//  Review Schema
 const ReviewSchema = new Schema(
   {
     userId: { type: Types.ObjectId, ref: "User", required: true },
@@ -27,14 +27,14 @@ const ReviewSchema = new Schema(
   { _id: false }
 );
 
-// 📦 Product Schema
+//  Product Schema
 const ProductSchema = new Schema<TProduct>(
   {
     productId: { type: Number, required: true },
 
     item: {
       name: { type: String, required: true },
-      slug: { type: String, required: true },
+      slug: { type: String, required: true, unique: true },
       description: { type: String, required: true },
       price: { type: Number, required: true },
       quantity: { type: Number, required: true },
@@ -59,8 +59,8 @@ const ProductSchema = new Schema<TProduct>(
         enum: ["percentage", "fixed"],
       },
       amount: { type: Number },
-      startDate: { type: Date },
-      endDate: { type: Date },
+      startDate: { type: Date, default: Date.now },
+      endDate: { type: Date, default: Date.now },
     },
 
     reviews: {
