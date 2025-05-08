@@ -12,9 +12,21 @@ const createProduct = catchAsync( async (req,res )=>{
         message:"Product Create Succfully",
         data:result
     });
-
 });
 
+const getAllProduct  = catchAsync( async (req, res) =>{
+    const result = await ProductServices.getAllProductIntoDB();
+
+    sendResponse(res,{
+        success : true,
+        statusCode:httpStatus.OK,
+        message:"Product retrive succfully",
+        data:result
+
+    })
+})
+
 export const ProductController ={
-    createProduct
+    createProduct,
+    getAllProduct
 }
