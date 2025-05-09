@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
-import { TStatus } from './vendor.constant';
+import { TBusinessType, TStatus } from './vendor.constant';
+import { TMainCategory } from '../product/product.constant';
 
 type TAddress = {
   street: string;
@@ -13,7 +14,6 @@ type TSocialLinks = {
   facebook?: string;
   instagram?: string;
   twitter?: string;
-  website?: string;
 };
 
 type TBankDetails = {
@@ -36,8 +36,8 @@ type TBlockInfo = {
   blockedAt: Date;
 };
 
+//Main Interface
 export interface TVendor {
-  _id: Types.ObjectId;
   userId: Types.ObjectId;
   shopName: string;
   email: string;
@@ -45,18 +45,27 @@ export interface TVendor {
   address: TAddress;
   logoImg?: string;
   bannerImg?: string;
-  description?: string;
+  description: string;
   isVerified: boolean;
   isActive: boolean;
   isBlocked: boolean;           
   blockInfo?: TBlockInfo;        
-  rating: number;
+  rating?: number;
   socialLinks?: TSocialLinks;
   bankDetails?: TBankDetails;
   documents: TDocument;
   status: TStatus;
+
+
+  productCategories: TMainCategory; 
+  businessType: TBusinessType;
+  establishedYear?: number;
+  website?: string;
+  gstNumber?: string; 
+  companyRegistrationNumber?: string;
+
   createdAt?: Date;
   updatedAt?: Date;
   approvedBy?: Types.ObjectId;
   approvalDate?: Date;
-}
+};
