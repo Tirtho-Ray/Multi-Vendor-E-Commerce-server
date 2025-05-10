@@ -37,7 +37,7 @@ const BlockInfoSchema = new Schema({
 
 //Main schema
 const VendorSchema = new Schema<TVendor>({
-  userId: { type: Types.ObjectId, ref: 'User', required: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   shopName: { type: String, required: true },
   email: { type: String, required: true, lowercase: true, trim: true },
   phone: { type: String, required: true },
