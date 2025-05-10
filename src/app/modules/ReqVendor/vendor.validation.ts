@@ -94,10 +94,10 @@ const VendorBaseSchema = z.object({
 });
 
 //  Final validator
-const VendorValidationSchema = z.object({
+const CreateVendorValidationSchema = z.object({
   body: VendorBaseSchema
 });
 
 export const VendorValidation = {
-  VendorValidationSchema
+    CreateVendorValidationSchema
 };

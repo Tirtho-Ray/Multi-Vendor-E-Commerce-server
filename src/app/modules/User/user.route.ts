@@ -16,4 +16,9 @@ router.post(
   UserControllers.userRegister
 );
 router.get('/', UserControllers.getAllUsers);
+router.patch('/soft-delete/:id',UserControllers.softDeleteUser);
+router.delete('/hard-delete/:id', UserControllers.hardDeleteUser);
 router.get('/:id', UserControllers.getSingleUser);
+
+
+

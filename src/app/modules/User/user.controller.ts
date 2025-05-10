@@ -36,8 +36,31 @@ const getSingleUser = catchAsync(async (req, res) => {
   });
 });
 
+const softDeleteUser = catchAsync(async (req, res) => {
+  const user = await UserServices.softDeleteUserFormDb(req.params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User soft-Delete Successfully',
+    data: user,
+  });
+});
+const hardDeleteUser = catchAsync(async (req, res) => {
+  const user = await UserServices.hardDeleteUserFromDb(req.params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User permanently deleted successfully',
+    data: user,
+  });
+});
+
 export const UserControllers = {
   getSingleUser,
   userRegister,
   getAllUsers,
+  softDeleteUser,
+  hardDeleteUser
 };
