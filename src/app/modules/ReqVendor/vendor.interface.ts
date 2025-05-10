@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { TBusinessType, TStatus } from './vendor.constant';
+import { TBusinessType,TStatus } from './vendor.constant';
 import { TMainCategory } from '../product/product.constant';
 
 type TAddress = {
@@ -26,9 +26,8 @@ type TBankDetails = {
 type TDocument = {
   nationalId: string;
   tradeLicense?: string;
-  otherDocs?: string[];
+  otherDocs?: Array<{ name: string; url: string }>; // updated for better document management
 };
-
 
 type TBlockInfo = {
   reason: string;
@@ -36,9 +35,13 @@ type TBlockInfo = {
   blockedAt: Date;
 };
 
-//Main Interface
+export type TKycStatus = 'pending' | 'verified' | 'rejected';
+
+// Main Interface
 export interface TVendor {
   userId: Types.ObjectId;
+
+  // Basic Info
   shopName: string;
   email: string;
   phone: string;
@@ -46,26 +49,47 @@ export interface TVendor {
   logoImg?: string;
   bannerImg?: string;
   description: string;
+  website?: string;
+  slug?: string; // SEO Friendly URL
+
+  // Verification & Status
   isVerified: boolean;
-  isActive: boolean;
-  isBlocked: boolean;           
-  blockInfo?: TBlockInfo;        
-  rating?: number;
-  socialLinks?: TSocialLinks;
-  bankDetails?: TBankDetails;
-  documents: TDocument;
+  verifiedAt?: Date;
+  verifiedBy?: Types.ObjectId;
+  kycStatus?: TKycStatus;
   status: TStatus;
+  isActive: boolean;
+  isBlocked: boolean;
+  blockInfo?: TBlockInfo;
+  rating?: number;
 
-
-  productCategories: TMainCategory; 
+  // Business Info
   businessType: TBusinessType;
   establishedYear?: number;
-  website?: string;
-  gstNumber?: string; 
+  gstNumber?: string;
   companyRegistrationNumber?: string;
+  productCategories: TMainCategory[]; // changed to array for multiple category support
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  // Admin Control
   approvedBy?: Types.ObjectId;
   approvalDate?: Date;
-};
+
+  // Documents & Bank Info
+  documents: TDocument;
+  bankDetails?: TBankDetails;
+
+  // Social & Support
+  socialLinks?: TSocialLinks;
+  supportEmail?: string;
+  supportPhone?: string;
+
+  // Location (Optional for Map/Delivery)
+  latitude?: number;
+  longitude?: number;
+
+  // Metadata
+  createdAt?: Date;
+  updatedAt?: Date;
+  createdBy?: Types.ObjectId;
+  updatedBy?: Types.ObjectId;
+}
