@@ -48,10 +48,17 @@ const hardDeleteUserFromDb = async (userId: string) => {
   return user;
 };
 
+//update 
+
+const updateUserRoleFormDB = async () =>{
+  
+}
+
 export const UserServices = {
   createUser,
   getAllUsersFromDB,
   getSingleUserFromDB,
   softDeleteUserFormDb,
-  hardDeleteUserFromDb
+  hardDeleteUserFromDb,
+  updateUserRoleFormDB
 };

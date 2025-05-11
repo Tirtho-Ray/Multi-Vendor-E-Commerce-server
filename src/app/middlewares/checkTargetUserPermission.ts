@@ -6,6 +6,13 @@ import { USER_ROLE } from '../modules/User/user.constant';
 import { User } from '../modules/User/user.model';
 
 
+//  	Can Update Own	 |    Can Delete Own  |    Can Update Others	 |  Can Delete Others
+// USER	    ✅	                    ✅	              ❌	                    ❌
+// VENDOR	✅	                    ✅	              ❌                     ❌
+// ADMIN	✅	                    ❌	              ✅ (USER + VENDOR)	    ✅ (USER + VENDOR)
+// SUPER_ADMIN	✅	                ❌	              ✅ (All)	            ✅ (All, except own self)
+
+
 const roleHierarchy: Record<string, number> = {
   [USER_ROLE.USER]: 1,
   [USER_ROLE.VENDOR]: 2,
@@ -24,9 +31,9 @@ export const checkTargetUserPermission = async (
     const requesterRole = requester.role;
     const requesterId = requester.userId;
 
-    // ✅ নিজের অ্যাকাউন্ট হলে কাজ করতে পারবে
+    // Only Work his won work
     if (targetUserId === requesterId) {
-      // ❌ কিন্তু নিজের একাউন্ট DELETE করা যাবে না যদি সে SUPER_ADMIN হয়
+      // "But a user cannot delete their own account if they are a SUPER_ADMIN."
       if (req.method === 'DELETE' && requesterRole === USER_ROLE.SUPER_ADMIN) {
         return res.status(httpStatus.FORBIDDEN).json({
           success: false,
@@ -48,7 +55,7 @@ export const checkTargetUserPermission = async (
     const requesterLevel = roleHierarchy[requesterRole];
     const targetLevel = roleHierarchy[targetRole];
 
-    // ✅ চেক করো requester এর level target থেকে বড় কিনা
+    // ✅ cheak requester to level target if big
     if (requesterLevel <= targetLevel) {
       return res.status(httpStatus.FORBIDDEN).json({
         success: false,
