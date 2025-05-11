@@ -11,6 +11,7 @@ const createUser = async (payload: TUser) => {
 const getAllUsersFromDB = async (query: Record<string, unknown>) => {
   if (!query.status) {
     query.status = 'ACTIVE';
+    
   }
 
   const users = new QueryBuilder(User.find(), query)

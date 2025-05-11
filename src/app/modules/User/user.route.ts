@@ -16,8 +16,8 @@ router.post(
   UserControllers.userRegister
 );
 router.get('/', UserControllers.getAllUsers);
-router.patch('/soft-delete/:id',UserControllers.softDeleteUser);
-router.delete('/hard-delete/:id', UserControllers.hardDeleteUser);
+router.patch('/soft-delete/:id', auth(USER_ROLE.SUPER_ADMIN,USER_ROLE.ADMIN),UserControllers.softDeleteUser);
+router.delete('/hard-delete/:id', auth(USER_ROLE.SUPER_ADMIN,USER_ROLE.ADMIN), UserControllers.hardDeleteUser);
 router.get('/:id', UserControllers.getSingleUser);
 
 
