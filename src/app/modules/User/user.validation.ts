@@ -33,7 +33,20 @@ const updateUserValidationSchema = z.object({
   }),
 });
 
+const updateUserRoleZodSchema = z.object({
+  body: z.object({
+    role: z.enum([
+      USER_ROLE.SUPER_ADMIN,
+      USER_ROLE.ADMIN,
+      USER_ROLE.VENDOR,
+      USER_ROLE.USER,
+    ]),
+  }),
+});
+
 export const UserValidation = {
   createUserValidationSchema,
   updateUserValidationSchema,
+  updateUserRoleZodSchema
+
 };

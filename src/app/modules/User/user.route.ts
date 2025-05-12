@@ -9,7 +9,7 @@ import { checkTargetUserPermission } from '../../middlewares/checkTargetUserPerm
 
 const router = express.Router();
 
-// Create Admin
+// Create Admin //ok api test
 router.post(
   '/create-admin',
   auth(USER_ROLE.SUPER_ADMIN),
@@ -17,7 +17,7 @@ router.post(
   UserControllers.userRegister
 );
 
-//  (ADMIN & SUPER_ADMIN)
+//  (ADMIN & SUPER_ADMIN) , here not work api gard
 router.get(
   '/',
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
@@ -46,6 +46,21 @@ router.delete(
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   checkTargetUserPermission,
   UserControllers.hardDeleteUser
+);
+
+// Update user role  =====>> issue in Cheak i use here eamil not id so come issu .. i fix this latter  
+router.patch('/user-role/:email',
+   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN), 
+   validateRequest(UserValidation.updateUserRoleZodSchema), 
+   checkTargetUserPermission,
+   UserControllers.updateUserRole
+);
+
+router.patch(
+  '/update-me', 
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.VENDOR, USER_ROLE.SUPER_ADMIN),  
+  // validateRequest(UserValidation.updateUserProfileSchema), 
+  UserControllers.updateMe  
 );
 
 

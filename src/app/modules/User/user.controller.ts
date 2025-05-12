@@ -57,10 +57,42 @@ const hardDeleteUser = catchAsync(async (req, res) => {
   });
 });
 
+const updateUserRole = catchAsync(async (req, res) => {
+  const { email } = req.params;
+  const { role } = req.body;
+
+  const user = await UserServices.updateUserRoleFromDB(email, role);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User role updated successfully',
+    data: user,
+  });
+});
+
+const updateMe = catchAsync(async (req, res) => {
+  const userId = req.user.id;  
+  const userRole = req.user.role; 
+  const updateData = req.body;
+
+  const updatedUser = await UserServices.updateMe(userId, updateData, userRole);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User data updated successfully',
+    data: updatedUser,
+  });
+});
+
+
 export const UserControllers = {
   getSingleUser,
   userRegister,
   getAllUsers,
   softDeleteUser,
-  hardDeleteUser
+  hardDeleteUser,
+  updateUserRole,
+  updateMe
 };
