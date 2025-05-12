@@ -56,6 +56,7 @@ router.patch('/user-role/:email',
    UserControllers.updateUserRole
 );
 
+// not work update me route ..
 router.patch(
   '/update-me', 
   auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.VENDOR, USER_ROLE.SUPER_ADMIN),  

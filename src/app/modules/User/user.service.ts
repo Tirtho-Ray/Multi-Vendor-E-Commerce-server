@@ -105,7 +105,7 @@ const updateUserRoleFromDB = async (userIdentifier: string, newRole: UserRole) =
 
 //Update me form db
 // Define allowed fields to update for security purposes
-const allowedUpdateFields = ['name', 'email', 'phone', 'address']; // Add other fields as needed
+const allowedUpdateFields = ['name']; 
 
 const updateMe = async (userId: string, updateData: Record<string, any>, userRole: UserRole) => {
   // Start a session for transaction

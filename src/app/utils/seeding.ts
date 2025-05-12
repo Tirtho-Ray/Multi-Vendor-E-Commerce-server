@@ -7,7 +7,7 @@ export const seed = async () => {
   try {
     //atFirst check if the admin exist of not
     const admin = await User.findOne({
-      role: USER_ROLE.ADMIN,
+      role: USER_ROLE.SUPER_ADMIN,
       email: config.admin_email,
       status: USER_STATUS.ACTIVE,
     });
