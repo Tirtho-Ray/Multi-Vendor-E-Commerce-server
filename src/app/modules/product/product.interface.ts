@@ -47,8 +47,6 @@ export interface TProduct {
     averageRating: number;
     totalReviews: number;
     customerReviews: {
-      userId: Types.ObjectId;
-      rating: number;
       comment: string;
       createdAt: Date;
     }[];

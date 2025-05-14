@@ -5,12 +5,12 @@ const CreateCommentValidationSchema = z.object({
     comment: z.string().min(1).max(400, {
       message: "Comment must be between 1 to 400 characters.",
     }),
-    userID: z.string(),
-    productId: z.string().optional(), 
-    parentComment: z.string().optional(), 
-    role: z.enum(["user", "vendor"]),
+    userId: z.string().min(1, "User ID is required."),
+    productId: z.string().min(1, "Product ID is required."),
+    parentComment: z.string().optional(),
   }),
 });
+
 
 export const CommentValidation = {
   CreateCommentValidationSchema,

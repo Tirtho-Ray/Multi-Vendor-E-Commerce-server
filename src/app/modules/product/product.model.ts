@@ -19,9 +19,7 @@ const VariantSchema = new Schema(
 //  Review Schema
 const ReviewSchema = new Schema(
   {
-    userId: { type: Types.ObjectId, ref: "User", required: true },
-    rating: { type: Number, required: true },
-    comment: { type: String },
+    comment: [{ type: Schema.Types.ObjectId,ref:'Comment',}],
     createdAt: { type: Date, default: Date.now },
   },
   { _id: false }

@@ -4,7 +4,8 @@ import { CommentService } from "./comment.services";
 import  httpStatus  from 'http-status';
 
 const createComment = catchAsync(async (req, res)=>{
-    const comment = CommentService.createCommentIntoDB(req.body);
+    const comment = await CommentService.createCommentIntoDB(req.body);
+//    console.log("📦 Incoming comment data:", req.body);
     sendResponse(res,{
         success:true,
         statusCode:httpStatus.CREATED,
@@ -16,3 +17,4 @@ const createComment = catchAsync(async (req, res)=>{
 export const CommentController ={
     createComment
 }
+
