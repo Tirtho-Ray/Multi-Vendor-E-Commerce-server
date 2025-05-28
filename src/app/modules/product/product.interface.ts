@@ -12,7 +12,6 @@ export type TVariant = {
 };
 
 export interface TProduct {
-  _id?: string;
   productId: number;
 
   item: {
