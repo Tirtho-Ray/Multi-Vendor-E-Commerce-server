@@ -1,87 +1,125 @@
-/* eslint-disable no-useless-escape */
+/* eslint-disable no-unused-vars */
 import bcryptjs from 'bcryptjs';
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 import config from '../../config';
 import { USER_ROLE, USER_STATUS } from './user.constant';
-import { IUserModel, TUser } from './user.interface';
+import { IUserModel, TUser, TAddress } from './user.interface';
+
+const addressSchema = new Schema<TAddress>(
+  {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String },
+    postalCode: { type: String, required: true },
+    country: { type: String, required: true },
+    isDefault: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
 
 const userSchema = new Schema<TUser, IUserModel>(
   {
-    name: {
+    name: { type: String, required: true },
+    
+    email: {
       type: String,
       required: true,
+      unique: true,
     },
+
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
+
+    mobileNumber: {
+      type: String,
+      required: false,
+    },
+
+    profilePhoto: {
+      type: String,
+      default: null,
+    },
+
     role: {
       type: String,
       enum: Object.keys(USER_ROLE),
       required: true,
     },
-    email: {
-      type: String,
-      required: true,
-      //validate email
-      match: [
-        /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/,
-        'Please fill a valid email address',
-      ],
-    },
-    password: {
-      type: String,
-      required: true,
-      select: 0,
-    },
+
     status: {
       type: String,
       enum: Object.keys(USER_STATUS),
       default: USER_STATUS.ACTIVE,
     },
+
     passwordChangedAt: {
       type: Date,
     },
-    mobileNumber: {
-      type: String,
-      required: true,
-    },
-    profilePhoto: {
-      type: String,
-      default: null
-    },
+
     otp: {
       type: String,
       default: null,
     },
+
     otpExpiresAt: {
       type: Date,
       default: null,
     },
-    
-    
+
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
+
+    addresses: {
+      type: [addressSchema],
+      default: [],
+    },
+
+    vendorProfile: {
+      type: Types.ObjectId,
+      ref: 'Vendor',
+      default: null,
+    },
   },
   {
     timestamps: true,
-    virtuals: true,
+    toJSON: {
+      virtuals: true,
+    },
+    toObject: {
+      virtuals: true,
+    },
   }
 );
 
+// Middleware to hash password before saving
 userSchema.pre('save', async function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // doc
-  // hashing password and save into DB
-
-  user.password = await bcryptjs.hash(
-    user.password,
+  if (!this.isModified('password')) {
+    return next();
+  }
+  this.password = await bcryptjs.hash(
+    this.password,
     Number(config.bcrypt_salt_rounds)
   );
-
   next();
 });
 
-// set '' after saving password
+// Clear password after save
 userSchema.post('save', function (doc, next) {
   doc.password = '';
   next();
 });
 
+// Static Methods
 userSchema.statics.isUserExistsByEmail = async function (email: string) {
   return await User.findOne({ email }).select('+password');
 };
@@ -94,12 +132,14 @@ userSchema.statics.isPasswordMatched = async function (
 };
 
 userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
-  passwordChangedTimestamp: number,
-  jwtIssuedTimestamp: number
+  passwordChangedAt: Date,
+  jwtIssuedAt: number
 ) {
-  const passwordChangedTime =
-    new Date(passwordChangedTimestamp).getTime() / 1000;
-  return passwordChangedTime > jwtIssuedTimestamp;
+  if (!passwordChangedAt) return false;
+  const passwordChangedTime = Math.floor(
+    new Date(passwordChangedAt).getTime() / 1000
+  );
+  return passwordChangedTime > jwtIssuedAt;
 };
 
 export const User = model<TUser, IUserModel>('User', userSchema);

@@ -1,21 +1,43 @@
 /* eslint-disable no-unused-vars */
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { USER_ROLE, USER_STATUS } from './user.constant';
-export type TAddress ={
-  
-}
+
+
+export type TAddress = {
+  street: string;
+  city: string;
+  state?: string;
+  postalCode: string;
+  country: string;
+  isDefault?: boolean;
+};
+
 export type TUser = {
+  //basic info
   _id?: string;
   name: string;
-  role: keyof typeof USER_ROLE;
   email: string;
   password: string;
-  status: keyof typeof USER_STATUS;
-  passwordChangedAt?: Date;
   mobileNumber?: string;
   profilePhoto?: string;
-  otp:string,
-  otpExpiresAt:Date,
+  
+  // role&ststus 
+  role: keyof typeof USER_ROLE;
+  status: keyof typeof USER_STATUS;
+  passwordChangedAt?: Date;
+  
+   // OTP / Reset Flow
+  otp?: string;
+  otpExpiresAt?: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+
+  // Address
+  addresses?: TAddress[];
+
+    // Vendor linking (ref to Vendor collection)
+  vendorProfile?: Types.ObjectId;
+
   createdAt?: Date;
   updatedAt?: Date;
 };
