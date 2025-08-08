@@ -1,7 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { Model } from 'mongoose';
 import { USER_ROLE, USER_STATUS } from './user.constant';
-
+export type TAddress ={
+  
+}
 export type TUser = {
   _id?: string;
   name: string;
