@@ -32,5 +32,6 @@ router.post(
   validateRequestCookies(AuthValidation.refreshTokenValidationSchema),
   AuthControllers.refreshToken
 );
+router.post('/verify-otp', AuthControllers.verifyOTP);
 
 export const AuthRoutes = router;

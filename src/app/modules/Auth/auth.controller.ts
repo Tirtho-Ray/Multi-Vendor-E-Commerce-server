@@ -6,23 +6,36 @@ import { catchAsync } from '../../utils/catchAsync';
 
 const registerUser = catchAsync(async (req, res) => {
   const result = await AuthServices.registerUser(req.body);
-  const { refreshToken, accessToken } = result;
 
-  res.cookie('refreshToken', refreshToken, {
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: result.message,
+    data: {
+      userId: result.userId,
+    },
+  });
+});
+
+
+const verifyOTP = catchAsync(async (req, res) => {
+  const { userId, otp } = req.body;
+  const result = await AuthServices.verifyOTP(userId, otp);
+
+  res.cookie('refreshToken', result.refreshToken, {
     secure: config.NODE_ENV === 'production',
     httpOnly: true,
   });
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
+  res.status(httpStatus.OK).json({
     success: true,
-    message: 'User registered in successfully!',
+    message: result.message,
     data: {
-      accessToken,
-      refreshToken,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
     },
   });
 });
+
 
 const loginUser = catchAsync(async (req, res) => {
   const result = await AuthServices.loginUser(req.body);
@@ -73,4 +86,5 @@ export const AuthControllers = {
   loginUser,
   changePassword,
   refreshToken,
+  verifyOTP
 };

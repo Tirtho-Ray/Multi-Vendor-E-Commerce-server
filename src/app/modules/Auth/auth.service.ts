@@ -5,33 +5,81 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { createToken } from '../../utils/verifyJWT';
-import { USER_ROLE } from '../User/user.constant';
+import { USER_ROLE, USER_STATUS } from '../User/user.constant';
 import { User } from '../User/user.model';
 import { TLoginUser, TRegisterUser } from './auth.interface';
 import { EmailHelper } from '../../utils/emailSender';
+import { generateAndSendOTP } from '../../utils/otpHelper';
+
 
 const registerUser = async (payload: TRegisterUser) => {
-  // Checking if the user exists
-  const user = await User.isUserExistsByEmail(payload?.email);
+  const userExists = await User.findOne({ email: payload.email });
 
-  if (user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This user already exists!');
+  if (userExists) {
+    if (userExists.status === USER_STATUS.PENDING) {
+     
+      await generateAndSendOTP(userExists._id);
+      return {
+        userId: userExists._id,
+        message: 'You have already registered but not verified. A new OTP has been sent to your email.',
+      };
+    }
+
+  
+    throw new AppError(httpStatus.CONFLICT, 'This user already exists!');
   }
 
-  // Set default role
   payload.role = USER_ROLE.USER;
 
-  // Create new user
-  const newUser = await User.create(payload);
+  const newUser = await User.create({
+    ...payload,
+    status: USER_STATUS.PENDING,
+  });
 
-  // Create JWT tokens for access and refresh
+  await generateAndSendOTP(newUser._id);
+
+  return {
+    userId: newUser._id,
+    message: 'OTP sent to your email. Please verify to complete registration.',
+  };
+};
+
+
+
+
+
+const verifyOTP = async (userId: string, otp: string) => {
+  const user = await User.findById(userId).select('+otp +otpExpiresAt +password');
+
+   if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  if (user.status === USER_STATUS.ACTIVE) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'User already verified');
+  }
+
+  if (!user.otp || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'OTP expired or invalid');
+  }
+
+  if (user.otp !== otp) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid OTP');
+  }
+
+  user.status = USER_STATUS.ACTIVE;
+  user.otp = null;
+  user.otpExpiresAt = null;
+  await user.save();
+
+// JWT Payload তৈরি করো
   const jwtPayload = {
-    _id: newUser._id,
-    name: newUser.name,
-    email: newUser.email,
-    mobileNumber: newUser.mobileNumber,
-    role: newUser.role,
-    status: newUser.status,
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    mobileNumber: user.mobileNumber,
+    role: user.role,
+    status: user.status,
   };
 
   const accessToken = createToken(
@@ -46,19 +94,16 @@ const registerUser = async (payload: TRegisterUser) => {
     config.jwt_refresh_expires_in as string
   );
 
-  // Send welcome email to the newly registered user
-  const emailHtml = await EmailHelper.createEmailContent(
-    { name: newUser.name, email: newUser.email },
-    'welcomeEmail' // template type (create this template in your views)
-  );
-
-  await EmailHelper.sendEmail(newUser.email, emailHtml, 'Welcome to Our Platform');
 
   return {
     accessToken,
     refreshToken,
+    message: 'User verified and logged in successfully',
   };
 };
+
+
+
 
 const loginUser = async (payload: TLoginUser) => {
   // checking if the user exists
@@ -223,4 +268,5 @@ export const AuthServices = {
   loginUser,
   changePassword,
   refreshToken,
+  verifyOTP
 };
