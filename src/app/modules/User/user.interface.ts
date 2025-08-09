@@ -35,15 +35,28 @@ export type TUser = {
   // Address
   addresses?: TAddress[];
 
-    // Vendor linking (ref to Vendor collection)
+    // Vendor linking (ref to Vendor collection ==->)
   vendorProfile?: Types.ObjectId;
 
   createdAt?: Date;
   updatedAt?: Date;
 };
 
+// export interface IUserModel extends Model<TUser> {
+//   isUserExistsByEmail(id: string): Promise<TUser>;
+//   isPasswordMatched(
+//     plainTextPassword: string,
+//     hashedPassword: string
+//   ): Promise<boolean>;
+//   isJWTIssuedBeforePasswordChanged(
+//     passwordChangedTimestamp: Date,
+//     jwtIssuedTimestamp: number
+//   ): boolean;
+// }
+
 export interface IUserModel extends Model<TUser> {
-  isUserExistsByEmail(id: string): Promise<TUser>;
+  isUserExistsByEmail(email: string): Promise<TUser | null>;
+  getUserWithPasswordByEmail(email: string): Promise<TUser | null>;
   isPasswordMatched(
     plainTextPassword: string,
     hashedPassword: string

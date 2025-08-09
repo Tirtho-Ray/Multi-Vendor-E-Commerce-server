@@ -52,22 +52,15 @@ const userSchema = new Schema<TUser, IUserModel>(
     status: {
       type: String,
       enum: Object.keys(USER_STATUS),
-      default: USER_STATUS.ACTIVE,
+      default: USER_STATUS.PENDING,
     },
 
     passwordChangedAt: {
       type: Date,
     },
+otp: { type: String },
+otpExpiresAt: { type: Date },
 
-    otp: {
-      type: String,
-      default: null,
-    },
-
-    otpExpiresAt: {
-      type: Date,
-      default: null,
-    },
 
     resetPasswordToken: {
       type: String,
@@ -121,8 +114,14 @@ userSchema.post('save', function (doc, next) {
 
 // Static Methods
 userSchema.statics.isUserExistsByEmail = async function (email: string) {
+  return await User.findOne({ email }); 
+};
+
+userSchema.statics.getUserWithPasswordByEmail = async function (email: string) {
   return await User.findOne({ email }).select('+password');
 };
+
+
 
 userSchema.statics.isPasswordMatched = async function (
   plainTextPassword,
