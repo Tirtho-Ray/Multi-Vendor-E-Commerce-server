@@ -81,10 +81,35 @@ const refreshToken = catchAsync(async (req, res) => {
   });
 });
 
+
+const requestPasswordResetOTP = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const result = await AuthServices.requestPasswordResetOTP(email);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: result.message,
+    data: { userId: result.userId },
+  });
+});
+
+const resetPasswordWithOTP = catchAsync(async (req, res) => {
+  const { userId, otp, newPassword } = req.body;
+  const result = await AuthServices.resetPasswordWithOTP(userId, otp, newPassword);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    data: result.message,
+  });
+});
+
+
 export const AuthControllers = {
   registerUser,
   loginUser,
   changePassword,
   refreshToken,
-  verifyOTP
+  verifyOTP,
+  requestPasswordResetOTP,
+  resetPasswordWithOTP
 };

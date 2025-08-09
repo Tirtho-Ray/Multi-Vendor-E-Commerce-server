@@ -34,4 +34,9 @@ router.post(
 );
 router.post('/verify-otp', AuthControllers.verifyOTP);
 
+router.post('/request-reset-password-otp', AuthControllers.requestPasswordResetOTP);
+router.post('/reset-password-otp', AuthControllers.resetPasswordWithOTP);
+
+
+
 export const AuthRoutes = router;

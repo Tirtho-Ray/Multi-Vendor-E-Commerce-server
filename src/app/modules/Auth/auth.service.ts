@@ -105,26 +105,25 @@ const verifyOTP = async (userId: string, otp: string) => {
 
 
 
+
 const loginUser = async (payload: TLoginUser) => {
-  // checking if the user exists
-  const user = await User.isUserExistsByEmail(payload?.email);
   
+  const user = await User.getUserWithPasswordByEmail(payload?.email);
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found!');
   }
 
-  // checking if the user is blocked
-  const userStatus = user?.status;
-  if (userStatus === 'BLOCKED') {
+ 
+  if (user?.status === 'BLOCKED') {
     throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!');
   }
 
-  // checking if the password is correct
-  if (!(await User.isPasswordMatched(payload?.password, user?.password))) {
+  const isPasswordCorrect = await User.isPasswordMatched(payload?.password, user?.password);
+  if (!isPasswordCorrect) {
     throw new AppError(httpStatus.FORBIDDEN, 'Password does not match');
   }
 
-  // create token and send to the client
+  
   const jwtPayload = {
     _id: user._id,
     name: user.name,
@@ -146,22 +145,18 @@ const loginUser = async (payload: TLoginUser) => {
     config.jwt_refresh_expires_in as string
   );
 
-  // Send login notification email
-  try {
-    const emailHtml = await EmailHelper.createEmailContent(
-      { name: user.name, loginTime: new Date().toLocaleString() },
-      'loginNotification' // template type for login notification
-    );
-
-    // console.log('Email HTML:', emailHtml); // Debugging: Check email content
-
-    await EmailHelper.sendEmail(user.email, emailHtml, 'Login Alert');
-    // console.log('Login email sent to:', user.email); // Debugging: Confirm email sent
-
-  } catch (error) {
-    // console.error('Error sending login notification email:', error); // Log errors 
-  }
-
+  // async  (Queue / setImmediate / process.nextTick)
+  (async () => {
+    try {
+      const emailHtml = await EmailHelper.createEmailContent(
+        { name: user.name, loginTime: new Date().toLocaleString() },
+        'loginNotification'
+      );
+      await EmailHelper.sendEmail(user.email, emailHtml, 'Login Alert');
+    } catch (err) {
+      console.error('Login email failed:', err);
+    }
+  })(); 
   return {
     accessToken,
     refreshToken,
@@ -169,12 +164,14 @@ const loginUser = async (payload: TLoginUser) => {
 };
 
 
+
+
 const changePassword = async (
   userData: JwtPayload,
   payload: { oldPassword: string; newPassword: string }
 ) => {
   // checking if the user is exist
-  const user = await User.isUserExistsByEmail(userData.email);
+  const user = await User.getUserWithPasswordByEmail(userData.email);
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found!');
@@ -212,6 +209,52 @@ const changePassword = async (
 
   return null;
 };
+
+const requestPasswordResetOTP = async (email: string) => {
+  const user = await User.isUserExistsByEmail(email);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  // cheak user
+  if (user.status === 'BLOCKED') {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
+  }
+
+  // OTP 
+  await generateAndSendOTP(user._id); 
+  return {
+    userId: user._id,
+    message: 'OTP sent to your email for password reset',
+  };
+};
+
+const resetPasswordWithOTP = async (userId: string, otp: string, newPassword: string) => {
+  const user = await User.findById(userId).select('+otp +otpExpiresAt +password');
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  if (!user.otp || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'OTP expired or invalid');
+  }
+
+  if (user.otp !== otp) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid OTP');
+  }
+
+  // update password
+  user.password = newPassword;
+  user.otp = null;
+  user.otpExpiresAt = null;
+  await user.save();
+
+  return {
+    message: 'Password reset successfully',
+  };
+};
+
+
 
 const refreshToken = async (token: string) => {
   // checking if the given token is valid
@@ -268,5 +311,7 @@ export const AuthServices = {
   loginUser,
   changePassword,
   refreshToken,
-  verifyOTP
+  verifyOTP,
+  requestPasswordResetOTP,
+  resetPasswordWithOTP
 };
