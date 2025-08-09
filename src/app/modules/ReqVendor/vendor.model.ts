@@ -64,7 +64,7 @@ const VendorSchema = new Schema<TVendor>(
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
-    blockInfo: { type: BlockInfoSchema },
+    blockInfo: { type: BlockInfoSchema, required:false },
 
     rating: { type: Number, min: 0, max: 5, default: 0 },
     socialLinks: { type: SocialLinksSchema },
