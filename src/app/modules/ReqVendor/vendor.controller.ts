@@ -16,6 +16,17 @@ const CreateVendor = catchAsync(async (req, res )=>{
     )
 })
 
+const getVendors = catchAsync (async (req,res) =>{
+    const vendor = await VendorServices.getAllVendorIntoDB();
+    sendResponse(res,{
+        success:true,
+        statusCode:httpStatus.CREATED,
+        message:"vendors get succfully",
+        data:vendor
+    });
+});
+
 export const VendorController ={
-    CreateVendor
+    CreateVendor,
+    getVendors
 }

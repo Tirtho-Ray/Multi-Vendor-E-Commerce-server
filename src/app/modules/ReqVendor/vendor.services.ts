@@ -28,6 +28,12 @@ const createVendorIntoDB = async (payload: TVendor) => {
   return result;
 };
 
+const getAllVendorIntoDB = async () =>{
+   const getVendors = await Vendor.find().populate("userId", "name email status");
+    return getVendors;
+} 
+
 export const VendorServices = {
   createVendorIntoDB,
+  getAllVendorIntoDB
 };
