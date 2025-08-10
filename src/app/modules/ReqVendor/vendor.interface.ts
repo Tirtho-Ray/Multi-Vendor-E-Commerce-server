@@ -1,6 +1,4 @@
 import { Types } from 'mongoose';
-import { TBusinessType,TStatus } from './vendor.constant';
-import { TMainCategory } from '../product/product.constant';
 
 type TAddress = {
   street: string;
@@ -26,22 +24,17 @@ type TBankDetails = {
 type TDocument = {
   nationalId: string;
   tradeLicense?: string;
-  otherDocs?: Array<{ name: string; url: string }>; // updated for better document management
+  otherDocs?: Array<{ name: string; url: string }>;
 };
 
 type TBlockInfo = {
-  reason: string;
-  blockedBy: Types.ObjectId;  // Admin ID
-  blockedAt: Date;
+  reason?: string;
+  blockedBy?: Types.ObjectId;
+  blockedAt?: Date;
 };
 
-export type TKycStatus = 'pending' | 'verified' | 'rejected';
-
-// Main Interface
 export interface TVendor {
   userId: Types.ObjectId;
-
-  // Basic Info
   shopName: string;
   email: string;
   phone: string;
@@ -50,46 +43,22 @@ export interface TVendor {
   bannerImg?: string;
   description: string;
   website?: string;
-  slug?: string; // SEO Friendly URL
 
-  // Verification & Status
   isVerified: boolean;
-  verifiedAt?: Date;
-  verifiedBy?: Types.ObjectId;
-  kycStatus?: TKycStatus;
-  status: TStatus;
   isActive: boolean;
+
   isBlocked: boolean;
-  blockInfo?: TBlockInfo;
+  blockInfo?: TBlockInfo | null;
+
   rating?: number;
+  socialLinks?: TSocialLinks;
+  bankDetails: TBankDetails;
+  documents: TDocument;
 
-  // Business Info
-  businessType: TBusinessType;
-  establishedYear?: number;
-  gstNumber?: string;
-  companyRegistrationNumber?: string;
-  productCategories: TMainCategory[]; // changed to array for multiple category support
+  status: 'pending' | 'approved' | 'rejected' | 'misInfo';
+  businessType: 'individual' | 'company' | 'reseller' | 'manufacturer';
+  productCategories: string[];
 
-  // Admin Control
   approvedBy?: Types.ObjectId;
   approvalDate?: Date;
-
-  // Documents & Bank Info
-  documents: TDocument;
-  bankDetails?: TBankDetails;
-
-  // Social & Support
-  socialLinks?: TSocialLinks;
-  supportEmail?: string;
-  supportPhone?: string;
-
-  // Location (Optional for Map/Delivery)
-  latitude?: number;
-  longitude?: number;
-
-  // Metadata
-  createdAt?: Date;
-  updatedAt?: Date;
-  createdBy?: Types.ObjectId;
-  updatedBy?: Types.ObjectId;
 }
