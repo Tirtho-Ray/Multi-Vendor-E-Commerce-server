@@ -2,13 +2,25 @@
 /* eslint-disable no-unused-vars */
 import mongoose from 'mongoose';
 import { QueryBuilder } from '../../builder/QueryBuilder';
-import { USER_ROLE, UserSearchableFields } from './user.constant';
+import { USER_ROLE, USER_STATUS, UserSearchableFields } from './user.constant';
 import { TUser } from './user.interface';
 import { User } from './user.model';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 
 const createUser = async (payload: TUser) => {
+  const userExists = await User.findOne({ email: payload.email })
+  if (userExists) {
+      if (userExists.status === USER_STATUS.BLOCKED) {
+        return {
+          userId: userExists._id,
+          message: 'You have already registered but Block.',
+        };
+      }
+  
+    
+      throw new AppError(httpStatus.CONFLICT, 'This user already exists!');
+    }
   const user = await User.create(payload);
   return user;
 };

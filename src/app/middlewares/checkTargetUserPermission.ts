@@ -26,14 +26,22 @@ export const checkTargetUserPermission = async (
   next: NextFunction
 ) => {
   try {
-    const targetUserId = req.params.id;
     const requester = req.user;
     const requesterRole = requester.role;
     const requesterId = requester.userId;
 
-    // Only Work his won work
-    if (targetUserId === requesterId) {
-      // "But a user cannot delete their own account if they are a SUPER_ADMIN."
+    const targetEmail = req.params.email; // use email from route
+    const targetUser = await User.findOne({ email: targetEmail });
+
+    if (!targetUser) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        message: 'Target user not found.',
+      });
+    }
+
+    // Self check
+    if (targetUser._id.toString() === requesterId) {
       if (req.method === 'DELETE' && requesterRole === USER_ROLE.SUPER_ADMIN) {
         return res.status(httpStatus.FORBIDDEN).json({
           success: false,
@@ -43,19 +51,9 @@ export const checkTargetUserPermission = async (
       return next();
     }
 
-    const targetUser = await User.findById(targetUserId);
-    if (!targetUser) {
-      return res.status(httpStatus.NOT_FOUND).json({
-        success: false,
-        message: 'Target user not found',
-      });
-    }
-
-    const targetRole = targetUser.role;
     const requesterLevel = roleHierarchy[requesterRole];
-    const targetLevel = roleHierarchy[targetRole];
+    const targetLevel = roleHierarchy[targetUser.role];
 
-    // ✅ cheak requester to level target if big
     if (requesterLevel <= targetLevel) {
       return res.status(httpStatus.FORBIDDEN).json({
         success: false,
@@ -71,3 +69,4 @@ export const checkTargetUserPermission = async (
     });
   }
 };
+
