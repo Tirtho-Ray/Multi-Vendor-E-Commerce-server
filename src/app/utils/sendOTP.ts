@@ -3,3 +3,4 @@ export const generateOtp = (): { otp: string; otpExpiresAt: Date } => {
   const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
   return { otp, otpExpiresAt };
 };
+// 838088

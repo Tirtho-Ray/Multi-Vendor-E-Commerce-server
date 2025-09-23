@@ -13,6 +13,8 @@ const createUser = async (payload: TUser) => {
   return user;
 };
 
+
+//filter all user  by 'email', 'phone',role,status ->
 const getAllUsersFromDB = async (query: Record<string, unknown>) => {
   if (!query.status) {
     query.status = 'ACTIVE';
@@ -31,12 +33,17 @@ const getAllUsersFromDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
+//get single username',
+  
+
 const getSingleUserFromDB = async (id: string) => {
   const user = await User.findById(id);
 
   return user;
 };
 
+
+//delete user soft
 const softDeleteUserFormDb = async (userId:string) =>{
   const user = User.findByIdAndUpdate(
     

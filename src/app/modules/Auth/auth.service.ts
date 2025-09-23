@@ -18,7 +18,7 @@ const registerUser = async (payload: TRegisterUser) => {
   if (userExists) {
     if (userExists.status === USER_STATUS.PENDING) {
      
-      await generateAndSendOTP(userExists._id);
+       generateAndSendOTP(userExists._id);
       return {
         userId: userExists._id,
         message: 'You have already registered but not verified. A new OTP has been sent to your email.',
@@ -36,15 +36,13 @@ const registerUser = async (payload: TRegisterUser) => {
     status: USER_STATUS.PENDING,
   });
 
-  await generateAndSendOTP(newUser._id);
+   generateAndSendOTP(newUser._id);
 
   return {
     userId: newUser._id,
     message: 'OTP sent to your email. Please verify to complete registration.',
   };
 };
-
-
 
 
 
@@ -101,7 +99,6 @@ const verifyOTP = async (userId: string, otp: string) => {
     message: 'User verified and logged in successfully',
   };
 };
-
 
 
 
@@ -210,6 +207,8 @@ const changePassword = async (
   return null;
 };
 
+
+
 const requestPasswordResetOTP = async (email: string) => {
   const user = await User.isUserExistsByEmail(email);
   if (!user) {
@@ -228,6 +227,7 @@ const requestPasswordResetOTP = async (email: string) => {
     message: 'OTP sent to your email for password reset',
   };
 };
+
 
 const resetPasswordWithOTP = async (userId: string, otp: string, newPassword: string) => {
   const user = await User.findById(userId).select('+otp +otpExpiresAt +password');

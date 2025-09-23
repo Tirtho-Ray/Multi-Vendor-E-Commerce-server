@@ -9,16 +9,19 @@ import { AuthValidation } from './auth.validation';
 
 const router = express.Router();
 
+//done
 router.post(
   '/register',
   validateRequest(AuthValidation.registerValidationSchema),
   AuthControllers.registerUser
 );
+//done
 router.post(
   '/login',
   validateRequest(AuthValidation.loginValidationSchema),
   AuthControllers.loginUser
 );
+
 
 router.post(
   '/change-password',
@@ -32,10 +35,13 @@ router.post(
   validateRequestCookies(AuthValidation.refreshTokenValidationSchema),
   AuthControllers.refreshToken
 );
+
+//done
 router.post('/verify-otp', AuthControllers.verifyOTP);
 
 router.post('/request-reset-password-otp', AuthControllers.requestPasswordResetOTP);
 router.post('/reset-password-otp', AuthControllers.resetPasswordWithOTP);
+
 
 
 

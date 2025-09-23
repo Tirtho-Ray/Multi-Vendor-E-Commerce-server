@@ -21,13 +21,13 @@ export type TUser = {
   mobileNumber?: string;
   profilePhoto?: string;
   
-  // role&ststus 
+  // role& ststus 
   role: keyof typeof USER_ROLE;
   status: keyof typeof USER_STATUS;
   passwordChangedAt?: Date;
   
    // OTP / Reset Flow
-  otp?: string;
+  otp?: string ;
   otpExpiresAt?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;

@@ -3,6 +3,7 @@ import { Server } from 'http';
 import mongoose from 'mongoose';
 import app from './app';
 import config from './app/config';
+import { startDeletePendingUsersJob } from './jobs/deletePendingUsers.job';
 // import { seed } from './app/utils/seeding';
 
 let server: Server;
@@ -30,6 +31,7 @@ async function bootstrap() {
     await mongoose.connect(config.db_url as string);
     console.log('🛢 Database connected successfully');
     // await seed();
+    startDeletePendingUsersJob();
     server = app.listen(config.port, () => {
       console.log(`🚀 Application is running on port ${config.port}`);
     });

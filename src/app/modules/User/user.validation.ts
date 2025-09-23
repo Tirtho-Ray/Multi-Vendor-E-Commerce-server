@@ -22,6 +22,7 @@ const createUserValidationSchema = z.object({
   }),
 });
 
+//user update ->
 const updateUserValidationSchema = z.object({
   body: z.object({
     name: z.string().optional(),
@@ -33,6 +34,7 @@ const updateUserValidationSchema = z.object({
   }),
 });
 
+//update role 
 const updateUserRoleZodSchema = z.object({
   body: z.object({
     role: z.enum([
