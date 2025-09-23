@@ -22,13 +22,14 @@ router.post(
   AuthControllers.loginUser
 );
 
-
+//done change password
 router.post(
   '/change-password',
   auth(USER_ROLE.USER, USER_ROLE.ADMIN),
   validateRequest(AuthValidation.changePasswordValidationSchema),
   AuthControllers.changePassword
 );
+
 
 router.post(
   '/refresh-token',
