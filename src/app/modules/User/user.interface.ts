@@ -27,8 +27,8 @@ export type TUser = {
   passwordChangedAt?: Date;
   
    // OTP / Reset Flow
-  otp?: string ;
-  otpExpiresAt?: Date;
+  otp?: string |null;
+ otpExpiresAt?: Date | null;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
 

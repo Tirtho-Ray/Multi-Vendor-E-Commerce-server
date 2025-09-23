@@ -2,7 +2,7 @@ import { User } from "../modules/User/user.model";
 import { EmailHelper } from "./emailSender";
 import { generateOtp } from "./sendOTP";
 
-export const generateAndSendOTP = async (userId: string) => {
+export const generateAndSendOTP = async (userId: string|undefined) => {
   const { otp, otpExpiresAt } = generateOtp();
 
  
