@@ -31,7 +31,6 @@ const DocumentsSchema = z.object({
 });
 
 const VendorCreateSchema = z.object({
-  userId: z.string(),
   shopName: z.string().min(2).max(100),
   email: z.string().email(),
   phone: z.string().min(10).max(15),
