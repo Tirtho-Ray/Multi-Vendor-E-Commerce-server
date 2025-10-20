@@ -1,12 +1,36 @@
-import express from 'express';
-import validateRequest from '../../middlewares/validateRequest';
-import { ProductValidation } from './product.validation';
-import { ProductController } from './product.controller';
-
+import express from "express";
+import validateRequest from "../../middlewares/validateRequest";
+import { ProductValidation } from "./product.validation";
+import { ProductController } from "./product.controller";
+import auth from "../../middlewares/auth";
+import { USER_ROLE } from "../User/user.constant";
 
 const router = express.Router();
 
-router.post('/create-product',validateRequest(ProductValidation.CreateProductValidationSchema),ProductController.createProduct);
-router.get('/',ProductController.getAllProduct)
+// Create product (Vendor) -> status = pending
+router.post(
+  "/create-product",
+  auth(USER_ROLE.VENDOR),
+  validateRequest(ProductValidation.CreateProductValidationSchema),
+  ProductController.createProduct
+);
+
+// Public: only active products
+router.get("/", ProductController.getAllProduct);//{null come populate VendorID}
+
+// Vendor routes
+router.get("/my-products", auth(USER_ROLE.VENDOR), ProductController.getMyProducts);//{null come populate VendorID}
+router.patch("/:productId", auth(USER_ROLE.VENDOR), validateRequest(ProductValidation.UpdateProductValidationSchema), ProductController.updateProduct);
+router.delete("/:productId", auth(USER_ROLE.VENDOR), ProductController.deleteProduct);
+
+// Vendor toggle active/inactive
+router.patch("/:productId/status", auth(USER_ROLE.VENDOR), ProductController.toggleProductStatus);
+
+// Admin routes
+router.patch("/approve/:productId", auth(USER_ROLE.ADMIN), ProductController.approveProduct);
+router.patch("/reject/:productId", auth(USER_ROLE.ADMIN), ProductController.rejectProduct);
+router.get("/admin/all", 
+  // auth(USER_ROLE.ADMIN), 
+  ProductController.adminGetAllProducts);
 
 export const ProductRouter = router;
