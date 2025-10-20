@@ -1,129 +1,98 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
-
-import { CategoryServices } from "./category.services";
-import AppError from "../../errors/AppError";
 import sendResponse from "../../utils/sendResponse";
-
+import AppError from "../../errors/AppError";
+import { CategoryServices } from "./category.services";
 
 const createCategory = catchAsync(async (req: Request, res: Response) => {
-    const result = await CategoryServices.createCategoryIntoDB(req.body);
+  const {name} = req.body;
+  
+  const picture = req.file?.path;
 
-    if (!result) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Failed to create category!");
-    }
+  if(!picture){
+    throw new AppError(httpStatus.NOT_FOUND,"picture not found")
+  }
+  
+  const result = await CategoryServices.createCategory({
+    name,
+    picture 
+  });
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.CREATED,
-        message: " Category created successfully!",
-        data: result,
-    });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Category created successfully!",
+    data: result,
+  });
 });
-
 
 const getAllCategories = catchAsync(async (_req: Request, res: Response) => {
-    const result = await CategoryServices.getAllCategoriesFromDB();
+  const result = await CategoryServices.getAllCategories();
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: " Categories fetched successfully!",
-        data: result,
-    });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Categories retrieved successfully!",
+    data: result,
+  });
 });
 
+const getCategoryById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-const getSingleCategory = catchAsync(async (req: Request, res: Response) => {
-    const { id } = req.params;
+  if (!id) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Category ID is required.");
+  }
 
+  const result = await CategoryServices.getCategoryById(id);
 
-    if (!id) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Category ID is required!");
-    }
-    const result = await CategoryServices.getSingleCategoryFromDB(id);
-
-    if (!result) {
-        throw new AppError(httpStatus.NOT_FOUND, " Category not found!");
-    }
-
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: " Category fetched successfully!",
-        data: result,
-    });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Category retrieved successfully!",
+    data: result,
+  });
 });
 
 const updateCategory = catchAsync(async (req: Request, res: Response) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    if (!id) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Category ID is required!");
-    }
-    const result = await CategoryServices.updateCategoryInDB(id, req.body);
+  if (!id) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Category ID is required.");
+  }
 
-    if (!result) {
-        throw new AppError(httpStatus.NOT_FOUND, " Category not found for update!");
-    }
+  const result = await CategoryServices.updateCategory(id, req.body);
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: " Category updated successfully!",
-        data: result,
-    });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Category updated successfully!",
+    data: result,
+  });
 });
-
-const renameCategory = catchAsync(async (req: Request, res: Response) => {
-    const { id } = req.params;
-
-    if (!id) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Category ID is required!");
-    }
-    const result = await CategoryServices.renameSubCategory(id, req.body);
-
-    if (!result) {
-        throw new AppError(httpStatus.NOT_FOUND, " Category not found for update!");
-    }
-
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: " Category updated successfully!",
-        data: result,
-    });
-});
-
 
 const deleteCategory = catchAsync(async (req: Request, res: Response) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    if (!id) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Category ID is required!");
-    }
-    const result = await CategoryServices.deleteCategoryFromDB(id);
+  if (!id) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Category ID is required.");
+  }
 
+  const result = await CategoryServices.deleteCategory(id);
 
-
-    if (!result) {
-        throw new AppError(httpStatus.NOT_FOUND, " Category not found for delete!");
-    }
-
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: "🗑️ Category deleted successfully!",
-        data: result,
-    });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Category deleted successfully!",
+    data: result,
+  });
 });
 
 export const CategoryController = {
-    createCategory,
-    getAllCategories,
-    getSingleCategory,
-    updateCategory,
-    deleteCategory,
-    renameCategory
+  createCategory,
+  getAllCategories,
+  getCategoryById,
+  updateCategory,
+  deleteCategory,
 };
