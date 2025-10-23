@@ -1,12 +1,17 @@
 import { z } from "zod";
 
 // Example: Variant schema based on your Mongoose model
-const VariantSchema = z.object({
-  attributes: z.record(z.union([z.string(), z.number(), z.boolean()])),
-  sku: z.string().optional(),
-  stock: z.number().min(0),
-  additionalPrice: z.number().optional(),
+export const VariantSchema = z.object({
+  color: z.string(),
   variantPictures: z.array(z.string().url()).optional(),
+  sizes: z.array(
+    z.object({
+      size: z.string(),
+      stock: z.number().min(0),
+      additionalPrice: z.number().optional().default(0),
+      sku: z.string().optional(),
+    })
+  ),
 });
 
 const CustomerReviewSchema = z.object({
@@ -16,49 +21,50 @@ const CustomerReviewSchema = z.object({
   createdAt: z.date().optional(),
 });
 
-const DiscountSchema = z.object({
-  type: z.enum(["percentage", "fixed"]),
-  amount: z.number().min(0, "Discount amount must be positive"),
+// / --- Discount Schema ---
+const DiscountSchema = z
+  .object({
+    type: z.enum(["percentage", "fixed"]).nullable().optional(),
+    amount: z.number().min(0).nullable().optional(),
 
+    startDate: z
+      .string()
+      .nullable()
+      .optional()
+      .refine((val) => !val || !isNaN(Date.parse(val)), { message: "Invalid start date" })
+      .transform((val) => (val ? new Date(val) : null)),
 
-  startDate: z
-    .string()
-    .refine((val) => !isNaN(Date.parse(val)), { message: "Invalid start date" })
-    .transform((val) => new Date(val)),
+    endDate: z
+      .string()
+      .nullable()
+      .optional()
+      .refine((val) => !val || !isNaN(Date.parse(val)), { message: "Invalid end date" })
+      .transform((val) => (val ? new Date(val) : null)),
 
-  endDate: z
-    .string()
-    .optional()
-    .refine((val) => !val || !isNaN(Date.parse(val)), {
-      message: "Invalid end date",
-    })
-    .transform((val) => (val ? new Date(val) : undefined)),
+    activeTime: z
+      .object({
+        specificDate: z
+          .string()
+          .nullable()
+          .optional()
+          .refine((val) => !val || !isNaN(Date.parse(val)), { message: "Invalid specific date" })
+          .transform((val) => (val ? new Date(val) : null)),
+        startTime: z.string().optional(),
+        endTime: z.string().optional(),
+        repeatDaily: z.boolean().optional(),
+      })
+      .optional(),
 
+    isActive: z.boolean().optional().default(false),
+    noEndDate: z.boolean().optional().default(false),
 
-  activeTime: z
-    .object({
-      specificDate: z
-        .string()
-        .optional()
-        .refine((val) => !val || !isNaN(Date.parse(val)), {
-          message: "Invalid specific date",
-        })
-        .transform((val) => (val ? new Date(val) : undefined)),
-      startTime: z.string().optional(), 
-      endTime: z.string().optional(), 
-      repeatDaily: z.boolean().optional(),
-    })
-    .optional(),
-
-  isActive: z.boolean().optional().default(false),
-  noEndDate: z.boolean().optional().default(false), 
-
-  maxUsageLimit: z.number().int().optional(),
-  usedCount: z.number().int().optional().default(0),
-  applicableProducts: z
-    .array(z.string().regex(/^[0-9a-fA-F]{24}$/))
-    .optional(),
-}).optional();
+    maxUsageLimit: z.number().int().nullable().optional(),
+    usedCount: z.number().int().optional().default(0),
+    // applicableProducts: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/))
+    //   .optional(),
+  }
+)
+  .optional()
 
 
 const ShippingSchema = z

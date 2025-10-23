@@ -58,6 +58,17 @@ const getAllProduct = catchAsync(async (req, res) => {
   });
 });
 
+const getProductById = catchAsync(async(req,res) =>{
+  const {id} =req.params
+  const result = await ProductServices.getProductById(id);
+  
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Products retrieved successfully",
+    data: result,
+  });
+})
 
 const getMyProducts = catchAsync(async (req, res) => {
   if (!req.user) throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
@@ -140,6 +151,7 @@ export const ProductController = {
   createProduct,
   getAllProduct,
   getMyProducts,
+  getProductById,
   updateProduct,
   deleteProduct,
   toggleProductStatus,

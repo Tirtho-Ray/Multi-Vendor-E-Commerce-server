@@ -5,12 +5,38 @@ export type TVariantAttribute = Record<string, string | number | boolean>;
 
 // Each variant of a product (like "Red - XL" etc.)
 export type TVariant = {
-  attributes: TVariantAttribute;
-  sku?: string;
-  stock: number;
-  additionalPrice?: number;
+  color: string;
   variantPictures?: string[];
+  sizes: {
+    size: string;
+    stock: number;
+    additionalPrice?: number;
+    sku?: string;
+  }[];
 };
+;
+
+// Discount Type
+export type TDiscount = {
+  type: "percentage" | "fixed" | null;  
+  amount: number | null;
+
+  startDate?: Date | null;
+  endDate?: Date | null;
+
+  activeTime?: {
+    specificDate?: Date;
+    startTime?: string;
+    endTime?: string;
+    repeatDaily?: boolean;
+  };
+
+  isActive?: boolean;
+
+  maxUsageLimit?: number | null;
+  usedCount?: number;
+};
+
 
 // Main Product Type
 export interface TProduct {
@@ -37,26 +63,7 @@ export interface TProduct {
   vendorID: Types.ObjectId; 
 
   // Discount / Offer (set by vendor or admin)
- discount?: {
-  type: "percentage" | "fixed"; 
-  amount: number;
-  
-  startDate?: Date;
-  endDate?: Date; 
-  
-  activeTime?: {
-    specificDate?: Date;   
-    startTime?: string;   
-    endTime?: string;    
-    repeatDaily?: boolean;
-  };
-
-  isActive?: boolean;       
-  noEndDate?: boolean;     
-  
-  maxUsageLimit?: number;    
-  usedCount?: number;
-};
+ discount?: TDiscount;
 
 
   // Shipping info

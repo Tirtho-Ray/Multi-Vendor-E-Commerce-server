@@ -11,14 +11,20 @@ const Counter = mongoose.models.Counter || model("Counter", CounterSchema);
 // --- Variant Schema ---
 const VariantSchema = new Schema(
   {
-    attributes: { type: Map, of: Schema.Types.Mixed, required: true },
-    sku: { type: String },
-    stock: { type: Number, required: true },
-    additionalPrice: { type: Number },
-    variantPictures: [{ type: String }],
+    color: { type: String, required: true }, 
+    variantPictures: [{ type: String }], 
+    sizes: [
+      {
+        size: { type: String, required: true },
+        stock: { type: Number, required: true },
+        additionalPrice: { type: Number, default: 0 },
+        sku: { type: String },
+      },
+    ],
   },
   { _id: false }
 );
+
 
 // --- Customer Review Schema ---
 const CustomerReviewSchema = new Schema(
@@ -32,25 +38,32 @@ const CustomerReviewSchema = new Schema(
 );
 
 // --- Discount Schema ---
+// --- Discount Schema ---
 const DiscountSchema = new Schema(
   {
-    type: { type: String, enum: ["percentage", "fixed"], required: true },
-    amount: { type: Number, required: true, min: 0 },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date },
+    type: { type: String, enum: ["percentage", "fixed"], default: null },
+    amount: { type: Number, min: 0, default: null },
+
+    startDate: { type: Date, default: null },
+    endDate: { type: Date, default: null },
+
     activeTime: {
-      specificDate: { type: Date },
-      startTime: { type: String },
-      endTime: { type: String },
+      specificDate: { type: Date,default:null },
+      startTime: { type: String,default:null },
+      endTime: { type: String,default:null },
       repeatDaily: { type: Boolean, default: false },
     },
+
     isActive: { type: Boolean, default: false },
-    maxUsageLimit: { type: Number },
+
+    maxUsageLimit: { type: Number, default: null },
     usedCount: { type: Number, default: 0 },
-    applicableProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+
+    // applicableProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
   },
   { _id: false }
 );
+
 
 // --- Shipping Schema ---
 const ShippingSchema = new Schema(
@@ -140,10 +153,31 @@ ProductSchema.pre("save", async function (next) {
       { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
-    const formattedSeq = counter.seq.toString().padStart(6, "0"); // 6 digits
-    this.productId = `P-${formattedSeq}`; // 👉 Result: P-000001
+    const formattedSeq = counter.seq.toString().padStart(6, "0"); 
+    this.productId = `P-${formattedSeq}`;
   }
   next();
 });
+
+
+ProductSchema.pre(/^find/, async function (next) {
+  const now = new Date();
+  await Product.updateMany(
+    {
+      "discount.startDate": { $lte: now },
+      "discount.endDate": { $gte: now },
+    },
+    { $set: { "discount.isActive": true } }
+  );
+  await Product.updateMany(
+    {
+      "discount.endDate": { $lt: now },
+    },
+    { $set: { "discount.isActive": false } }
+  );
+
+  next();
+});
+
 
 export const Product = mongoose.models.Product || model<TProduct>("Product", ProductSchema);

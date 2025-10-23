@@ -16,19 +16,20 @@ router.post(
 );
 
 // Public: only active products
-router.get("/", ProductController.getAllProduct);//{null come populate VendorID}
+router.get("/", ProductController.getAllProduct);
+router.get("/:id",ProductController.getProductById);
 
 // Vendor routes
 router.get("/my-products", auth(USER_ROLE.VENDOR), ProductController.getMyProducts);//{null come populate VendorID}
-router.patch("/:productId", auth(USER_ROLE.VENDOR), validateRequest(ProductValidation.UpdateProductValidationSchema), ProductController.updateProduct);
-router.delete("/:productId", auth(USER_ROLE.VENDOR), ProductController.deleteProduct);
+router.patch("/:id", auth(USER_ROLE.VENDOR), validateRequest(ProductValidation.UpdateProductValidationSchema), ProductController.updateProduct);
+router.delete("/:id", auth(USER_ROLE.VENDOR), ProductController.deleteProduct);
 
 // Vendor toggle active/inactive
-router.patch("/:productId/status", auth(USER_ROLE.VENDOR), ProductController.toggleProductStatus);
+router.patch("/:id/status", auth(USER_ROLE.VENDOR), ProductController.toggleProductStatus);
 
 // Admin routes
-router.patch("/approve/:productId", auth(USER_ROLE.ADMIN), ProductController.approveProduct);
-router.patch("/reject/:productId", auth(USER_ROLE.ADMIN), ProductController.rejectProduct);
+router.patch("/approve/:id", auth(USER_ROLE.ADMIN), ProductController.approveProduct);
+router.patch("/reject/:id", auth(USER_ROLE.ADMIN), ProductController.rejectProduct);
 router.get("/admin/all", 
   // auth(USER_ROLE.ADMIN), 
   ProductController.adminGetAllProducts);

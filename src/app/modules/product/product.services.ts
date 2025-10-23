@@ -59,7 +59,8 @@ const getAllProductIntoDB = async (query: Record<string, unknown>) => {
       vendorID: 1, 
       status: 1,
       visibility: 1,
-      soldCount: 1
+      soldCount: 1,
+       discount: 1
     }
   ).populate([
     // { path: "vendorID", select: "name email" }, 
@@ -78,6 +79,12 @@ const getAllProductIntoDB = async (query: Record<string, unknown>) => {
   const result = await productQuery.modelQuery.lean();
   return result;
 };
+
+const getProductById = async (id:string) =>{
+  const product  = Product.findById(id);
+  return product
+};
+
 
 
 
@@ -183,6 +190,7 @@ const adminGetAllProducts = async () => {
 export const ProductServices = {
   createProductIntoDB,
   getAllProductIntoDB,
+  getProductById,
   getMyProductsFromDB,
   updateProductInDB,
   deleteProductFromDB,
