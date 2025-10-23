@@ -1,4 +1,3 @@
-/* eslint-disable prefer-const */
 import { FilterQuery, Query } from "mongoose";
 
 export class QueryBuilder<T> {
