@@ -124,7 +124,7 @@ const updateUserRoleFromDB = async (userIdentifier: string, newRole: UserRole) =
 
 //Update me form db
 // Define allowed fields to update for security purposes
-const allowedUpdateFields = ['name']; 
+const allowedUpdateFields = ['name', 'mobileNumber', 'profilePhoto', 'addresses'];
 
 const updateMe = async (userId: string, updateData: Record<string, any>, userRole: UserRole) => {
   // Start a session for transaction
@@ -176,6 +176,17 @@ const updateMe = async (userId: string, updateData: Record<string, any>, userRol
 };
 
 
+const getMyProfile = async (userId: string) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  return user;
+};
+
+
 
 export const UserServices = {
   createUser,
@@ -184,5 +195,6 @@ export const UserServices = {
   softDeleteUserFormDb,
   hardDeleteUserFromDb,
   updateUserRoleFromDB,
-  updateMe
+  updateMe,
+  getMyProfile
 };

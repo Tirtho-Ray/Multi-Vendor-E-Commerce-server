@@ -6,6 +6,7 @@ import { USER_ROLE } from './user.constant';
 import validateRequest from '../../middlewares/validateRequest';
 import { UserValidation } from './user.validation';
 import { checkTargetUserPermission } from '../../middlewares/checkTargetUserPermission';
+import { multerUpload } from '../../config/multer.config';
 
 const router = express.Router();
 
@@ -25,13 +26,7 @@ router.get(
   UserControllers.getAllUsers
 );
 
-// Get single user
-router.get(
-  '/:id',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
-  checkTargetUserPermission,
-  UserControllers.getSingleUser
-);
+
 
 // Soft delete 
 router.patch(
@@ -60,11 +55,26 @@ router.patch('/user-role/:email',
 // not work update me route ..
 router.patch(
   '/update-me', 
-  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.VENDOR, USER_ROLE.SUPER_ADMIN),  
+  multerUpload.single('profilePhoto'), 
+  auth(USER_ROLE.USER,USER_ROLE.VENDOR), 
   // validateRequest(UserValidation.updateUserProfileSchema), 
   UserControllers.updateMe  
 );
 
+// Get my profile
+router.get(
+  '/me',
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.VENDOR, USER_ROLE.SUPER_ADMIN),
+  UserControllers.getMyProfile
+);
+
+// Get single user
+router.get(
+  '/:id',
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  checkTargetUserPermission,
+  UserControllers.getSingleUser
+);
 
 
 export const UserRoutes = router;

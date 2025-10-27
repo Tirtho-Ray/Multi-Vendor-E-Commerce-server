@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -5,7 +6,6 @@ import { UserServices } from './user.service';
 
 const userRegister = catchAsync(async (req, res) => {
   const user = await UserServices.createUser(req.body);
-
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -16,7 +16,6 @@ const userRegister = catchAsync(async (req, res) => {
 
 const getAllUsers = catchAsync(async (req, res) => {
   const users = await UserServices.getAllUsersFromDB(req.query);
-
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -72,9 +71,29 @@ const updateUserRole = catchAsync(async (req, res) => {
 });
 
 const updateMe = catchAsync(async (req, res) => {
-  const userId = req.user.id;  
-  const userRole = req.user.role; 
-  const updateData = req.body;
+  const userId = req.user.id;
+  const userRole = req.user.role;
+  const updateData: any = { ...req.body };
+//   console.log('req.body:', req.body);
+// console.log('req.file:', req.file)
+
+  // Handle addresses
+  const addressKeys = Object.keys(updateData).filter(key => key.startsWith('addresses.'));
+  if (addressKeys.length > 0) {
+    const addressObj: any = {};
+    addressKeys.forEach(key => {
+      const prop = key.split('.')[1];
+      addressObj[prop] = updateData[key];
+      delete updateData[key];
+    });
+    updateData.addresses = [addressObj];
+  }
+
+  // Add profilePhoto from Cloudinary
+  if (req.file?.path) {
+    updateData.profilePhoto = req.file.path;
+  };
+  // console.log(req.file?.path)
 
   const updatedUser = await UserServices.updateMe(userId, updateData, userRole);
 
@@ -87,6 +106,25 @@ const updateMe = catchAsync(async (req, res) => {
 });
 
 
+
+
+
+const getMyProfile = catchAsync(async (req, res) => {
+  //  console.log("REQ USER:", req.user);
+  const userId = req.user.id 
+
+  const user = await UserServices.getMyProfile(userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User profile fetched successfully',
+    data: user,
+  });
+});
+
+
+
 export const UserControllers = {
   getSingleUser,
   userRegister,
@@ -94,5 +132,6 @@ export const UserControllers = {
   softDeleteUser,
   hardDeleteUser,
   updateUserRole,
-  updateMe
+  updateMe,
+  getMyProfile
 };

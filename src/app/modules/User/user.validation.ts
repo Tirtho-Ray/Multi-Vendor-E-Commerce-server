@@ -30,7 +30,7 @@ const updateUserValidationSchema = z.object({
     email: z.string().email().optional(),
     password: z.string().optional(),
     status: z.nativeEnum(USER_STATUS).optional(),
-    mobileNumber: z.string().optional(),
+    // mobileNumber: z.string().optional(),
   }),
 });
 
