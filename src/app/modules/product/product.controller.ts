@@ -58,6 +58,17 @@ const getAllProduct = catchAsync(async (req, res) => {
   });
 });
 
+const getPendingProduct = catchAsync(async (req, res) => {
+  const result = await ProductServices.getPendingProduct();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Products retrieved successfully",
+    data: result,
+  });
+});
+
 const getProductById = catchAsync(async(req,res) =>{
   const {id} =req.params
   const result = await ProductServices.getProductById(id);
@@ -82,7 +93,7 @@ const updateProduct = catchAsync(async (req, res) => {
   if (req.user.role !== "VENDOR") throw new AppError(httpStatus.FORBIDDEN, "Only vendors can update products");
 
   const vendorId = req.user.id;
-  const productId = req.params.productId;
+  const productId = req.params.id;
   const updatedData = req.body;
 
   const result = await ProductServices.updateProductInDB(productId, vendorId, updatedData);
@@ -117,26 +128,36 @@ const toggleProductStatus = catchAsync(async (req, res) => {
   sendResponse(res, { success: true, statusCode: httpStatus.OK, message: "Product status updated", data: result });
 });
 
+// ------------------------------------------------ADMIN-------------------------------------
 // Admin approve product
-const approveProduct = catchAsync(async (req, res) => {
+const reviewProductByAdmin = catchAsync(async (req, res) => {
   if (!req.user) throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
-  if (req.user.role !== "ADMIN") throw new AppError(httpStatus.FORBIDDEN, "Only admin can approve products");
+  if (req.user.role !== "ADMIN") throw new AppError(httpStatus.FORBIDDEN, "Only admin can review products");
 
-  const productId = req.params.productId;
-  const result = await ProductServices.approveProductByAdmin(productId);
-  sendResponse(res, { success: true, statusCode: httpStatus.OK, message: "Product approved", data: result });
+  const productId = req.params.id;
+  const { action, adminNotes } = req.body;
+
+  if (!["active", "reject"].includes(action)) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Action must be 'active' or 'reject'");
+  }
+
+  const adminId = req.user.id; //  current admin
+
+  const result = await ProductServices.reviewProductByAdmin(
+    productId,
+    action,
+    adminNotes,
+    adminId
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `Product ${action}d successfully`,
+    data: result,
+  });
 });
 
-// Admin reject product
-const rejectProduct = catchAsync(async (req, res) => {
-  if (!req.user) throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
-  if (req.user.role !== "ADMIN") throw new AppError(httpStatus.FORBIDDEN, "Only admin can reject products");
-
-  const productId = req.params.productId;
-  const { adminNotes } = req.body;
-  const result = await ProductServices.rejectProductByAdmin(productId, adminNotes);
-  sendResponse(res, { success: true, statusCode: httpStatus.OK, message: "Product rejected", data: result });
-});
 
 // Admin: get all
 const adminGetAllProducts = catchAsync(async (req, res) => {
@@ -151,11 +172,11 @@ export const ProductController = {
   createProduct,
   getAllProduct,
   getMyProducts,
+  getPendingProduct,
   getProductById,
   updateProduct,
   deleteProduct,
   toggleProductStatus,
-  approveProduct,
-  rejectProduct,
+  reviewProductByAdmin,
   adminGetAllProducts,
 };
