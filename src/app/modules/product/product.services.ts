@@ -7,6 +7,7 @@ import { QueryBuilder } from "../../builder/QueryBuilder";
 import { ProductSearchableFields } from "./product.constant";
 import { Category } from "../category/category.model"; 
 import { SubCategory } from "../sub-category/sub_category.model";
+import { Types } from "mongoose";
 
 
 const createProductIntoDB = async (payload: TProduct) => {
@@ -80,10 +81,21 @@ const getAllProductIntoDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
+//for all user
 const getProductById = async (id:string) =>{
   const product  = Product.findById(id);
   return product
 };
+
+
+// for admin -> can access pending product
+const getPendingProduct = async () => {
+  const products = await Product.find({ status: "pending" })
+    .sort({ createdAt: -1 });
+  return products;
+};
+
+
 
 
 
@@ -97,7 +109,7 @@ const getMyProductsFromDB = async (vendorID: string) => {
   { path: "item.category", select: "name " },
   { path: "item.subCategory", select: "name " },
   { path: "vendorID", select: "name email" },
-  // { path: "approvedBy", select: "name email" } 
+  { path: "approvedBy", select: "name email" } 
 ])
 
     .lean();
@@ -138,29 +150,32 @@ const deleteProductFromDB = async (productId: string, vendorId: string) => {
   return product;
 };
 
-// Admin: approve product (pending -> active)
-const approveProductByAdmin = async (productId: string) => {
+
+// ADMIN --------------------------------------ADMIN------------------------------------------
+// Admin: approve product (pending -> active+reject)
+const reviewProductByAdmin = async (
+  productId: string,
+  action: "active" | "reject",
+  adminNotes?: string,
+  adminId?: Types.ObjectId
+) => {
   const product = await Product.findById(productId);
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found");
   }
 
-  product.status = "active";
-  await product.save();
-  return product;
-};
-
-// Admin: reject product (set rejected + optional adminNotes)
-const rejectProductByAdmin = async (productId: string, adminNotes?: string) => {
-  const product = await Product.findById(productId);
-  if (!product) {
-    throw new AppError(httpStatus.NOT_FOUND, "Product not found");
-  }
-  product.status = "rejected";
+  // Update status and notes
+  product.status = action === "active" ? "active" : "rejected";
   if (adminNotes) product.adminNotes = adminNotes;
+
+  //  Track which admin reviewed
+  product.approvedBy = adminId;
+
   await product.save();
   return product;
 };
+
+
 
 // Vendor: toggle active <-> inactive (but cannot make pending->active)
 const vendorToggleStatus = async (productId: string, vendorID: string, newStatus: "active" | "inactive") => {
@@ -191,11 +206,11 @@ export const ProductServices = {
   createProductIntoDB,
   getAllProductIntoDB,
   getProductById,
+  getPendingProduct,
   getMyProductsFromDB,
   updateProductInDB,
   deleteProductFromDB,
-  approveProductByAdmin,
-  rejectProductByAdmin,
+reviewProductByAdmin,
   vendorToggleStatus,
   adminGetAllProducts,
 };

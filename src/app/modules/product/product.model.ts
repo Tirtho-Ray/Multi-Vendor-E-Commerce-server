@@ -139,7 +139,7 @@ const ProductSchema = new Schema<TProduct>(
     views: { type: Number, default: 0 },
     wishlistedCount: { type: Number, default: 0 },
     soldCount: { type: Number, default: 0 },
-    approvedBy: { type: Schema.Types.ObjectId, ref: "Admin" },
+    approvedBy: { type: Schema.Types.ObjectId, ref: "User" },
     adminNotes: { type: String },
   },
   { timestamps: true }
